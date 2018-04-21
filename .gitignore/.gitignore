@@ -1,0 +1,52 @@
+import requests
+import re
+import os
+import time
+
+def url_open(url):
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36',
+        'Cookie':'thw=cn; t=d80b0983519e1860b9f6f60efaddc45c; cna=+M9LE1QjJQwCAdNT3wEiO5lU; hng=CN%7Czh-CN%7CCNY%7C156; enc=gqDmoKUVbOcKIVGz51XtniGjNA6qrN4rs0VN7uFY3DVqoU8mFmvPbPgt2FN%2Fm98bVXcLJnJO4Uf0kO%2BTWl8eBQ%3D%3D; cookie2=15348f4b43b4c1ffb23f7f1742f95e10; v=0; _tb_token_=3819b17833beb; isg=BBQUxU3cMhwjDqbPvxN0hVL-5FL3luWX557AM6735B9ymbLj1n4W52V7nZEBEnCv; uc1=cookie14=UoTeOouWuWtQOA%3D%3D',
+    }
+    res = requests.get(url,headers = headers)
+    return res
+
+def get_imgUrl(url):
+    res = url_open(url)
+    Links = re.findall('"avatarUrl":"(.*?)",',res.text,re.S)
+    #print(Links)
+    return Links
+
+def saveImg(link):
+    temp = link.split('/')
+    fileName = temp[-1]
+    if link.endswith('.png'):
+        with open(fileName+'.png','wb') as f:
+            img = url_open(link)
+            f.write(img.content)
+    else:        
+        with open(fileName+'.jpg','wb') as f:
+            img = url_open(link)
+            f.write(img.content)
+    
+def down_pic(num=50):
+    os.mkdir(r'C:\Users\Administrator\Desktop\404\python\taobao_pic\taoPic')
+    os.chdir(r'C:\Users\Administrator\Desktop\404\python\taobao_pic\taoPic')
+    
+    linklist = []
+    imgName_list = ['alive','video','article','live','latest','coop']
+    for each_name in imgName_list:
+        for i in range(1,3):
+            url = 'https://mm.taobao.com/alive/list.do?scene=%s&page=%s&_ksTS=1524304271334_218&callback=jsonp219' % (each_name,i)
+            res = url_open(url)
+            #print(url)
+            linkList = get_imgUrl(url)
+            #print(img_linklist)
+            for link in linkList:
+                if link.startswith('http:')==False:
+                    link = 'https:'+ link
+                print(link)
+                saveImg(link)
+                time.sleep(1)
+                
+down_pic()
